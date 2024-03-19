@@ -15,6 +15,7 @@ const Input = React.forwardRef<
         props.editable === false && "opacity-50 web:cursor-not-allowed",
         className
       )}
+      autoCapitalize="none"
       placeholderClassName={cn("text-muted-foreground", placeholderClassName)}
       {...props}
     />
