@@ -1,26 +1,31 @@
-import { useForm, SubmitHandler } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { Pressable, View } from "react-native";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Text } from "~/components/ui/text";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "expo-router";
 
-const schema = z.object({
-  email: z.string().min(6),
-  password: z.string().min(6),
-});
+const schema = z
+  .object({
+    email: z.string().min(6),
+    password: z.string().min(6),
+    confirmPassword: z.string().min(6),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords not match",
+    path: ["confirmPassword"],
+  });
 
-export default function SignInScreen() {
+export default function SignUpScreen() {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
   });
@@ -30,16 +35,16 @@ export default function SignInScreen() {
   };
 
   return (
-    <View className="flex-1 justify-between px-4">
+    <View className="flex-1 justify-between bg-background">
       <View className="gap-4 pt-60">
-        <Text className="text-5xl font-semibold pb-20">Entre na sua conta</Text>
+        <Text className="text-5xl font-semibold">Cadastre-se agora</Text>
+        <Text className="text-xl pb-20">Crie sua conta gratuitamente</Text>
         <Form {...form}>
           <FormField
             control={form.control}
             name="email"
             render={({ field: { onChange, ...props } }) => (
               <FormItem>
-                <FormLabel nativeID="a">Email</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Email"
@@ -56,7 +61,6 @@ export default function SignInScreen() {
             name="password"
             render={({ field: { onChange, ...props } }) => (
               <FormItem>
-                <FormLabel nativeID="a">Senha</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Senha"
@@ -69,19 +73,38 @@ export default function SignInScreen() {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field: { onChange, ...props } }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    placeholder="Confirmar senha"
+                    secureTextEntry
+                    onChangeText={onChange}
+                    {...props}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </Form>
         <Button onPress={form.handleSubmit(submit)}>
-          <Text>Entrar</Text>
+          <Text>Cadastrar</Text>
         </Button>
+      </View>
+      <Link href="/auth/sign-in" asChild>
         <Pressable>
-          <Text className="text-center text-lg font-semibold text-primary">
-            Esqueceu a senha ?
+          <Text className="flex items-center justify-center text-center text-lg font-semibold">
+            Ja tem uma conta ?{" "}
+            <Text className="text-center text-lg font-semibold text-primary">
+              Faça o login
+            </Text>
           </Text>
         </Pressable>
-      </View>
-      <Button variant="outline">
-        <Text>Cadastre-se</Text>
-      </Button>
+      </Link>
     </View>
   );
 }
